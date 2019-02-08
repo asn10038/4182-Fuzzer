@@ -15,9 +15,12 @@ class Server:
         logging.debug("Searching for pattern: {}".format(self.PATTERN))
         # Needed this otherwise the process hogs the port for a while
         socketserver.TCPServer.allow_reuse_address = True
-        with socketserver.TCPServer((self.HOST,
+
+        tcpServer = socketserver.TCPServer((self.HOST,
                                      self.PORT),
-                                     tcp.TCPHandler) as server:
+                                     tcp.TCPHandler)
+        tcpServer.pattern = self.PATTERN
+        with tcpServer as server:
             try:
                 print("CTRL+C to exit")
                 server.serve_forever();
