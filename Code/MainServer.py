@@ -3,6 +3,7 @@ import sys
 import server.Server as ser
 import server.PatternFileReader as pfr
 import server.ServerLogger as slogger
+from pathlib import Path
 
 from optparse import OptionParser
 
@@ -11,7 +12,7 @@ def get_option_parser():
     ret.set_usage("python3 MainServer.py [options] [pattern_file]")
     ret.add_option("-o", "--output-file", dest="out_file",
                       help="The output file to print the counts",
-                      metavar="FILE_PATH", default=sys.stdout)
+                      metavar="FILE_PATH", default='sys.stdout')
     ret.add_option("-p", "--port", dest="port",
                       help="The port the server binds to. Takes and int. default is 8000", default=8000)
     ret.add_option("-s", "--host", dest="host",
@@ -33,13 +34,17 @@ def run():
     # setup the logger
     verbose = options.verbose
     slogger.LogCreator(verbose)
+    if not Path(out_file).exists():
+        slogger.ServerLogger.get_server_logger().warning("Output File {} doesn't exist.".format(out_file))
 
     if len(args) < 1:
         slogger.ServerLogger.get_server_logger().critical("No pattern file specified")
     if len(args) > 1:
         slogger.ServerLogger.get_server_logger().warning("Extra arguments included")
-    pattern_file = args[0]
 
+    pattern_file = args[0]
+    if not Path(pattern_file).exists():
+        slogger.ServerLogger.get_server_logger().critical("Pattern File doesn't exist: {}".format(pattern_file))
     # Read the pattern from the file
     preader = pfr.PatternFileReader(pattern_file)
     pattern = preader.read_pattern()

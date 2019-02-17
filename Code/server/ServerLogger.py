@@ -4,6 +4,7 @@ import sys
 class ShutdownHandler(logging.Handler):
     def emit(self, record):
         logging.shutdown()
+        print("SHUTDOWN ON CRITICAL ERROR")
         raise SystemExit
 
 class LogCreator:
