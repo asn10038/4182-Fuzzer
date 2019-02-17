@@ -5,10 +5,10 @@ class TCPHandler(socketserver.StreamRequestHandler):
     '''The request handler for the server'''
 
     def handle(self):
-        self.data = self.rfile.readline().strip()
-        for x in range(5):
-            self.data += self.rfile.readline().strip()
-            
+        # self.data = self.rfile.readline().strip()
+        # for x in range(5):
+            # self.data += self.rfile.readline().strip()
+        self.data = self.request.recv(1024).strip()
 
         self.pattern = self.server.pattern
         if(self.payload_starts_w_pattern(self.data)):

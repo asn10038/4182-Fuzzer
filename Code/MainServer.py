@@ -25,18 +25,20 @@ def run():
     parser = get_option_parser()
     (options, args) = parser.parse_args()
 
-    if len(args) != 1:
-        slogger.ServerLogger.log("No pattern file specified", "critical")
 
     # Read the arguments
-
-    pattern_file = args[0]
     host = options.host
     port = options.port
     out_file = options.out_file
-    verbose = options.verbose
     # setup the logger
+    verbose = options.verbose
     slogger.LogCreator(verbose)
+
+    if len(args) < 1:
+        slogger.ServerLogger.get_server_logger().critical("No pattern file specified")
+    if len(args) > 1:
+        slogger.ServerLogger.get_server_logger().warning("Extra arguments included")
+    pattern_file = args[0]
 
     # Read the pattern from the file
     preader = pfr.PatternFileReader(pattern_file)

@@ -22,7 +22,9 @@ class LogCreator:
         logging.getLogger().addHandler(ShutdownHandler(level=50))
 
 class ServerLogger:
-
+    @staticmethod
+    def get_server_logger():
+        return logging.getLogger(__name__)
     @staticmethod
     def log(message, level):
         if level == "debug":
