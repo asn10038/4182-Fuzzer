@@ -20,10 +20,19 @@ class Server:
                                      self.PORT),
                                      tcp.TCPHandler)
         tcpServer.pattern = self.PATTERN
+        tcpServer.validCount = 0
+        tcpServer.invalidCount = 0
         with tcpServer as server:
             try:
                 print("CTRL+C to exit")
                 server.serve_forever();
             except KeyboardInterrupt:
+                if self.OUTFILE.name != '<stdout>':
+                    logging.debug("Outputting Statistics to: {}".format(self.OUTFILE.name))
+                self.output_statistics(tcpServer.validCount, tcpServer.invalidCount)
                 print("\nShutting Down")
                 raise SystemExit
+
+    def output_statistics(self, validCount, invalidCount):
+        self.OUTFILE.write("Valid Packets Received: {}\n".format(validCount))
+        self.OUTFILE.write("Invalid Packets Received: {}\n".format(invalidCount))

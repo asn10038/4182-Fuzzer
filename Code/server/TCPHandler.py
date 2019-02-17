@@ -8,16 +8,25 @@ class TCPHandler(socketserver.StreamRequestHandler):
         # self.data = self.rfile.readline().strip()
         # for x in range(5):
             # self.data += self.rfile.readline().strip()
+        valid_payload = False
         self.data = self.request.recv(1024).strip()
+        logging.debug("{} wrote: {}".format(self.client_address[0], self.data))
 
         self.pattern = self.server.pattern
         if(self.payload_starts_w_pattern(self.data)):
-            print("Valid PAYLOAD!!!!")
+            valid_payload = True
+            logging.debug("Valid PAYLOAD!!!!")
         else:
-            print("INVALID PAYLOAD :(")
+            logging.debug("INVALID PAYLOAD :(")
 
-        logging.debug("{} wrote: {}".format(self.client_address[0], self.data))
-        self.wfile.write(bytearray("SERVER RESPONSE HERE\n", 'utf-8'))
+        if valid_payload:
+            self.server.validCount += 1
+            self.wfile.write(bytearray.fromhex("00"))
+        else:
+            self.server.invalidCount += 1
+            self.wfile.write(bytearray.fromhex("FF"))
+
+
 
     def payload_starts_w_pattern(self, data):
         bytes = bytearray(data)
