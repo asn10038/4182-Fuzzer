@@ -1,6 +1,26 @@
 import random
+from threading import Thread
 
 from scapy.all import *
+
+class Sniffer(Thread):
+    def __init__(self, session, _filter):
+        super().__init__()
+
+        self.timeout = 5 # give server 5 seconds to send fin, otherwise close from client
+        
+        self.session = session
+        self.filter = _filter
+
+    def run(self):
+        print("Sniffer started.")
+        sniff(
+            prn=self.session.send_ack,
+            filter=self.filter,
+            timeout=self.timeout# ,
+            # stop_filter=lambda x: x[TCP].flags.F
+        )
+        print("Sniffer exited.")
 
 class TCPSession:
     def __init__(self, src, dst, sport, dport):
@@ -15,6 +35,30 @@ class TCPSession:
         self.timeout = 3
 
         self.ip = IP(src=self.src, dst=self.dst)
+
+        _filter = "src host " + dst + " and src port " + str(dport)
+        _filter = "tcp[tcpflags] & (tcp-push|tcp-fin) != 0 and " + _filter
+        self.sniffer = Sniffer(self, _filter)
+    
+    def send_ack(self, packet):
+        # Receive PSHACK or FINACK
+        self.ack = packet.seq + 1
+
+        if packet[TCP].flags.P:
+            # Print response from server!
+            print("Response from server: {}".format(packet[Raw].load))
+
+        if not packet[TCP].flags.F:
+            # Send ACK
+            ACK = TCP(sport=self.sport, dport=self.dport, flags='A', seq=self.seq, ack=self.ack)
+            send(self.ip/ACK)
+        
+        else:
+            # Send FINACK
+            FINACK = TCP(sport=self.sport, dport=self.dport, flags='FA', seq=self.seq, ack=self.ack)
+            
+            # Receive ACK
+            ACK = sr1(self.ip/FINACK)
     
     def connect(self):
         # Send SYN
@@ -33,6 +77,9 @@ class TCPSession:
         ACK = TCP(sport=self.sport, dport=self.dport, flags='A', seq=self.seq, ack=self.ack)
         # self.seq += 1
         send(self.ip/ACK)
+
+        # Start sniffer
+        self.sniffer.start()
 
         print("Connected!")
         return True

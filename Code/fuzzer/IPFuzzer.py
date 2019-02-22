@@ -14,11 +14,11 @@ class IPFuzzer:
         self.fields = set(fields)
     
     def run_default(self):
-        sess = ts.TCPSession("192.168.0.13", self.host, 1341, self.port)
+        sess = ts.TCPSession("192.168.0.14", self.host, 1362, self.port)
         success = sess.connect()
 
         if success:
-            sess.send(IP()/TCP()/Raw(load="hi!"))
+            sess.send(IP()/TCP()/Raw(load=self.payload))
 
         # tests = {}
 
