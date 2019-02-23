@@ -7,7 +7,7 @@ class Sniffer(Thread):
     def __init__(self, session, _filter):
         super().__init__()
 
-        # self.timeout = 5 # give server 5 seconds to send fin, otherwise close from client
+        self.timeout = 30 # do we need this?
         
         self.session = session
         self.filter = _filter
@@ -15,16 +15,16 @@ class Sniffer(Thread):
     def run(self):
         print("Sniffer started.")
         sniff(
-            prn=self.session.send_ack, # Acknowledge received packets
+            prn=self.session.dispatcher, # Acknowledge received packets
             filter=self.filter,
             # timeout=self.timeout,
-            # stop_filter=lambda x: x[TCP].flags.F # Stop when received fin from server
-            stop_filter=lambda _: not self.session.connected # Stop when connection is closed
+            stop_filter=lambda x: x[TCP].flags.F # Stop when received fin from server
+            # stop_filter=lambda _: not self.session.connected # Stop when connection is closed
         )
         print("Sniffer exited.")
 
 class TCPSession:
-    def __init__(self, src, dst, sport, dport):
+    def __init__(self, src, dst, sport, dport, timeout=3):
         self.src = src
         self.dst = dst
         self.sport = sport
@@ -33,7 +33,7 @@ class TCPSession:
         self.seq = random.randint(0, 65536)
         self.ack = 0
 
-        self.timeout = 3
+        self.timeout = timeout
 
         self.ip = IP(src=self.src, dst=self.dst)
 
@@ -44,25 +44,23 @@ class TCPSession:
         self.connected = False
         self.active_close = False
     
-    def send_ack(self, packet):
+    def dispatcher(self, packet):
         # print(packet.show())
-        # Receive PSHACK or FINACK
-        self.ack = packet.seq + 1
+        ack = packet.seq + 1
+        self.ack = max(self.ack, ack)
 
-        if packet[TCP].flags.P:
+        if packet[TCP].flags.P: # PA or FPA
             # Print response from server!
             print("Response from server: {}".format(packet[Raw].load))
 
-        if packet[TCP].flags.P: # PA or FPA
             # Send ACK
-            ACK = TCP(sport=self.sport, dport=self.dport, flags='A', seq=self.seq, ack=self.ack)
+            ACK = TCP(sport=self.sport, dport=self.dport, flags='A', seq=self.seq, ack=ack)
             send(self.ip/ACK)
         
-        else: # FA
-            # print(self.active_close, packet[TCP].flags)
-            if self.active_close: # Received 2nd msg in handshake
+        elif packet[TCP].flags.F: # FA
+            if self.active_close: # Received 2nd msg in handshake (active close)
                 # Send ACK
-                ACK = TCP(sport=self.sport, dport=self.dport, flags='A', seq=self.seq, ack=self.ack)
+                ACK = TCP(sport=self.sport, dport=self.dport, flags='A', seq=self.seq, ack=ack)
                 send(self.ip/ACK)
                 self.active_close = False
                 self.connected = False
@@ -70,7 +68,7 @@ class TCPSession:
 
             else: # Received 1st msg in handshake (passive close)
                 # Send FINACK
-                FINACK = TCP(sport=self.sport, dport=self.dport, flags='FA', seq=self.seq, ack=self.ack)
+                FINACK = TCP(sport=self.sport, dport=self.dport, flags='FA', seq=self.seq, ack=ack)
 
                 # Receive ACK
                 ACK = sr1(self.ip/FINACK, timeout=self.timeout)
@@ -119,10 +117,16 @@ class TCPSession:
         FIN = TCP(sport=self.sport, dport=self.dport, flags='FA', seq=self.seq, ack=self.ack)
         self.seq += 1
 
+        self.active_close = True
         send(self.ip/FIN)
         print("Sent FIN to server.")
-        self.active_close = True # TODO: Fix concurrency problem
-        return True
+
+        # TODO: replace with sth more elegant
+        from time import sleep
+        sleep(3)
+        if not self.connected:
+            return True
+        return False
 
         # Receive FINACK
         # FINACK = sr1(self.ip/FIN, timeout=self.timeout)
@@ -138,6 +142,7 @@ class TCPSession:
         
         # print("Closed. Bye!")
         # self.connected = False
+        # self.active_close = False
         # return True
     
     def send(self, packet):
@@ -156,14 +161,16 @@ class TCPSession:
         packet.payload.ack = self.ack # unless fuzzing tcp ack
 
         # Send packet
-        self.seq += len(packet.payload.payload) # size of tcp payload
+        # self.seq += len(packet.payload.payload) # size of tcp payload
 
         # Receive ACK
         ACK = sr1(packet, timeout=self.timeout)
         if not ACK or not ACK[TCP].flags.A:
             print("Error: Unable to send.")
             return False
-        self.ack = ACK.seq + 1
+        
+        self.seq += len(packet.payload.payload) # size of tcp payload
+        # self.ack = ACK.seq + 1
 
         print("Packet sent.")
         return True
