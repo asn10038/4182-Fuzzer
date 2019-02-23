@@ -6,19 +6,20 @@ import fuzzer.TCPSession as ts
 
 class IPFuzzer:
 
-    def __init__(self, host, port, payload, max_tests, fields):
-        self.host = host
-        self.port = int(port)
+    def __init__(self, src, dst, payload, max_tests, fields):
+        self.shost, self.sport = src
+        self.dhost, self.dport = dst
+        
         self.payload = payload
         self.max_tests = max_tests
         self.fields = set(fields)
     
     def run_default(self):
-        sess = ts.TCPSession("192.168.0.14", self.host, 1362, self.port)
-        success = sess.connect()
-
-        if success:
+        sess = ts.TCPSession(self.shost, self.dhost, self.sport, self.dport)
+        
+        if sess.connect():
             sess.send(IP()/TCP()/Raw(load=self.payload))
+            sess.close()
 
         # tests = {}
 
