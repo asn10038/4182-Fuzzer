@@ -34,7 +34,7 @@ def run():
     # setup the logger
     verbose = options.verbose
     slogger.LogCreator(verbose)
-    if not Path(out_file).exists():
+    if not Path(out_file).exists() and out_file != 'sys.stdout':
         slogger.ServerLogger.get_server_logger().warning("Output File {} doesn't exist.".format(out_file))
 
     if len(args) < 1:

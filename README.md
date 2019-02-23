@@ -9,6 +9,7 @@ This is the fuzzer for Security II.
 * Set up with `pip install -r requirements.txt`
 * Run fuzzer with `python Main.py [args]` -- NOT IMPLEMENTED
 * Run servier with `python MainServer.py [args]`
+* **NOTE**: Only runs with python v3.6 and later
 
 ## TO BE IMPLEMENTED
 
@@ -47,11 +48,11 @@ This is the fuzzer for Security II.
 
 ### Server
   * Normal socket library that does not parse the IP and Transport Layers -- DONE
-  * Inspect the payload for a series of bytes (referred to as the *pattern* ) at the start of the payload
-  * The pattern should be specified in hex in a file and read when the server starts
-  * The pattern may not exceed the maximum allowed payload length
-  * The server will send a response with payload 0x00 if valid
-  * The server will send a response with payload 0xFF if invalid
-  * The server will keep a count of the number of valid payloads received
-  * The server will keep a count of the number of invalid payloads received
-  * When the server is done or stopped it will either display the counts or write them to a file before exiting
+  * Inspect the payload for a series of bytes (referred to as the *pattern* ) at the start of the payload -- DONE
+  * The pattern should be specified in hex in a file and read when the server starts -- DONE
+  * The pattern may not exceed the maximum allowed payload length -- DONE
+  * The server will send a response with payload 0x00 if valid -- DONE
+  * The server will send a response with payload 0xFF if invalid -- DONE
+  * The server will keep a count of the number of valid payloads received -- DONE
+  * The server will keep a count of the number of invalid payloads received -- DONE
+  * When the server is done or stopped it will either display the counts or write them to a file before exiting -- DONE
