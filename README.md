@@ -20,7 +20,7 @@ This is the fuzzer for Security II.
   * The user can specify multiple tests in the same file
   * Each line can correspond to a given packet with tag:value pairs
   * Set a maximum on the number of tests in a given file
-  * The fuzzer must include a small default payload that is specified in a file and can be edited by the user
+  * The fuzzer must include a small default payload that is specified in a file and can be edited by the user -- DONE
 
 ### TCP Layer Fuzzing -- IP Layer is valid and TCP layer is fuzzed
   * Run a default set of tests where each field is fuzzed individually with all possible values tested for each field
