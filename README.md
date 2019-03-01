@@ -14,8 +14,8 @@ This is the fuzzer for Security II.
 ## TO BE IMPLEMENTED
 
 ### IP Layer Fuzzing -- TCP layer is valid and IP Header is fuzzed
-  * Run a default set of tests where each field is fuzzed individually with all possible values tested for each field
-  * The user can specify what fields to fuzz but use the default tests
+  * Run a default set of tests where each field is fuzzed individually with all possible values tested for each field -- DONE
+  * The user can specify what fields to fuzz but use the default tests -- DONE
   * Running a set of tests where content of fields is read in as hex from a file.
   * The user can specify multiple tests in the same file
   * Each line can correspond to a given packet with tag:value pairs
