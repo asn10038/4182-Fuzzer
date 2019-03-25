@@ -1,0 +1,10 @@
+###########################################################
+One test (packet) per line, fields separated by commas.
+For flags field, please specify ip_flags or tcp_flags.
+
+Examples:
+test1: version: 4, proto: 6
+test2: seq: 1001, tcp_flags: SYN|ACK
+###########################################################
+
+test1: version: 4, ihl: 6
