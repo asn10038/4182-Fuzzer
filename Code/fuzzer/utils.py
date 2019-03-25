@@ -5,7 +5,7 @@ class PayloadFileReader:
     def __init__(self, path):
         self.path = path
         self.MAX_PLENGTH = 1000
-    
+
     def read_payload(self):
         '''Returns the pattern from the file. Reads it as a string of hex bytes
            ignoring the white space'''
@@ -16,7 +16,7 @@ class PayloadFileReader:
                 return self.get_hex(input_file.read())
 
         except FileNotFoundError:
-            logging.critical("Pattern File Not Found: {}".format(path))
+            logging.warning("Pattern File Not Found: {}".format(self.path))
 
     def get_hex(self, input_string):
         '''Turns the hex pattern read as a string to a list of bytes'''

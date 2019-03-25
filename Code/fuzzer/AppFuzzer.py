@@ -1,9 +1,8 @@
 ''' This is the app fuzzer '''
 import logging
-import TCPSession
 import random
 import fuzzer.TCPSession as ts
-import utils
+import fuzzer.utils
 from scapy.all import *
 
 class AppFuzzer:

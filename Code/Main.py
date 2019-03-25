@@ -2,7 +2,11 @@
 import logging
 from optparse import OptionParser
 
-from fuzzer import IPFuzzer, TCPFuzzer, AppFuzzer, utils
+
+# only here for debugging
+import fuzzer.TCPSession as ts
+import fuzzer.AppFuzzer as af
+from fuzzer import IPFuzzer, TCPFuzzer, utils
 
 # class Main:
 #     def run(self):
@@ -11,7 +15,7 @@ from fuzzer import IPFuzzer, TCPFuzzer, AppFuzzer, utils
 def get_option_parser():
     ret = OptionParser()
     ret.set_usage("python3 Main.py [options] [ip/tcp/app] [dhost] [dport]")
-    ret.add_option("-f", "--fields", dest="fields", 
+    ret.add_option("-f", "--fields", dest="fields",
         help="The layers to fuzz for default tests", default="all")
     ret.add_option("-m", "--max_tests", dest="max_tests",
         help="Maximum number of tests to run for a field, default 256", default=256)
@@ -53,14 +57,17 @@ def run():
         logging.info("Starting IP Fuzzer....")
         f = IPFuzzer.IPFuzzer(src, dst, payload, options.max_tests, fields)
         f.run_default()
-    
+
     elif layer == "tcp":
         logging.info("Starting TCP Fuzzer....")
         # f = TCPFuzzer.TCPFuzzer(host, port)
         # f.run()
-    
+
     else:
         logging.info("Starting Application layer Fuzzer....")
+        sess = ts.TCPSession("127.0.0.1", "127.0.0.1", 3000, 8000, timeout=0.1)
+        f = af.AppFuzzer(sess)
+        f.run()
         # f = AppFuzzer.AppFuzzer(host, port)
         # f.run()
 
