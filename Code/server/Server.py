@@ -31,6 +31,8 @@ class Server:
                 self.output_statistics(tcpServer.validCount, tcpServer.invalidCount)
                 print("\nShutting Down")
                 raise SystemExit
+            except ConnectionResetError:
+                logging.info("Connection reset by peer...continuing to serve anyway")
 
     def output_statistics(self, validCount, invalidCount):
         result_string = ''' Valid Packets Received: {}\nInvalid Packets Received {}\n '''.format(validCount, invalidCount)
