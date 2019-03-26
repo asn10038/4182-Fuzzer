@@ -7,7 +7,11 @@
 # test2: seq = 1001, tcp_flags = SYN|ACK                  #
 ###########################################################
 
-test1: version = 4, ihl = 6
-test2: version = 3, ttl = 7
-test3: id = 9180, frag = 65
-test4: ttl = 98
+# test1: version = 4, ihl = 6
+# test2: version = 3, ttl = 7
+# test3: id = 9180, frag = 65
+# test4: ttl = 98
+test5: tcp_flags = 4
+test6: tcp_flags = 0
+test7: tcp_flags = 2
+

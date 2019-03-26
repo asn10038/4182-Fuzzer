@@ -1,6 +1,6 @@
 basics:
-    host: 160.39.6.215 # client addr
-    port: 1342 # client port
+    host: 160.39.6.82 # client addr
+    port: 1352 # client port
     mode: default # default/custom
     payload_file: ../SampleFiles/payload.txt
     test_file: ../SampleFiles/test.txt # used for custom mode only
@@ -22,9 +22,10 @@ advanced:
     tcp_fields: # fields to fuzz for the tcp layer
     # - seq # sequence number
     # - ack # acknowledgment number (if ACK is set)
-        - dataofs # data offset
-        - reserved
-          # - flags # NS|CWR|ECE|URG|ACK|PSH|RST|SYN|FIN
-        - window # window size
-        - urgptr # urgent pointer (if URG is set)
-        
+    # - dataofs # data offset
+    # - reserved
+          - flags # NS|CWR|ECE|URG|ACK|PSH|RST|SYN|FIN
+          # - window # window size
+          # - urgptr # urgent pointer (if URG is set)
+
+    sniffer_timeout: 5

@@ -9,12 +9,13 @@ import fuzzer.utils as utils
 
 class IPFuzzer:
 
-    def __init__(self, src, dst, payload, fields):
+    def __init__(self, src, dst, payload, fields, sniffer_timeout):
         self.shost, self.sport = src
         self.dhost, self.dport = dst
         
         self.payload = payload
         self.fields = set(fields)
+        self.sniffer_timeout = sniffer_timeout
 
         self.ipv4 = { # range of values of each field
             'version': 1 << 4, 'ihl': 1 << 4, 'tos': 1 << 8, 'len': 1 << 16,
@@ -23,7 +24,7 @@ class IPFuzzer:
     
     def run_default(self, max_tests):
         logging.info("Running default tests on IP layer...")
-        sess = ts.TCPSession(self.shost, self.dhost, self.sport, self.dport, timeout=0.1)
+        sess = ts.TCPSession(self.shost, self.dhost, self.sport, self.dport, timeout=0.1, sniffer_timeout=self.sniffer_timeout)
         
         if sess.connect():
             # sess.send(IP()/TCP()/Raw(load=self.payload))
@@ -68,7 +69,7 @@ class IPFuzzer:
         treader = utils.TestFileReader(test_file)
         tests = treader.read_tests(max_tests)
 
-        sess = ts.TCPSession(self.shost, self.dhost, self.sport, self.dport, timeout=0.1)
+        sess = ts.TCPSession(self.shost, self.dhost, self.sport, self.dport, timeout=0.1, sniffer_timeout=self.sniffer_timeout)
 
         if sess.connect():
             for tid, test in tests:

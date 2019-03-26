@@ -57,9 +57,11 @@ def run():
     ip_fields = cfg_advanced['ip_fields']
     tcp_fields = cfg_advanced['tcp_fields']
 
+    sniffer_timeout = cfg_advanced['sniffer_timeout']
+
     if layer == "ip":
         logging.info("Starting IP Fuzzer....")
-        f = IPFuzzer.IPFuzzer(src, dst, payload, ip_fields)
+        f = IPFuzzer.IPFuzzer(src, dst, payload, ip_fields, sniffer_timeout)
         if mode == 'default':
             f.run_default(max_tests_default)
         elif mode == 'custom':
@@ -67,7 +69,7 @@ def run():
     
     elif layer == "tcp":
         logging.info("Starting TCP Fuzzer....")
-        f = TCPFuzzer.TCPFuzzer(src, dst, payload, tcp_fields)
+        f = TCPFuzzer.TCPFuzzer(src, dst, payload, tcp_fields, sniffer_timeout)
         if mode == 'default':
             f.run_default(max_tests_default)
         elif mode == 'custom':
