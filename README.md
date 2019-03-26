@@ -7,7 +7,7 @@ This is the fuzzer for Security II.
 
 #### Running -- temp
 * Set up with `pip install -r requirements.txt`
-* Run fuzzer with `python Main.py [args]` -- NOT IMPLEMENTED
+* Run fuzzer with `python Main.py [args]`
 * Run servier with `python MainServer.py [args]`
 * **NOTE**: Only runs with python v3.6 and later
 

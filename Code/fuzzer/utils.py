@@ -5,7 +5,7 @@ class PayloadFileReader:
     def __init__(self, path):
         self.path = path
         self.MAX_PLENGTH = 1000
-    
+
     def read_payload(self):
         '''Returns the pattern from the file. Reads it as a string of hex bytes
            ignoring the white space'''

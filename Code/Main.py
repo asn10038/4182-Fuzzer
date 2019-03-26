@@ -4,13 +4,26 @@ from optparse import OptionParser
 
 import yaml
 
-from fuzzer import IPFuzzer, TCPFuzzer, AppFuzzer, utils
+# only here for debugging
+import fuzzer.TCPSession as ts
+import fuzzer.AppFuzzer as af
+from fuzzer import IPFuzzer, TCPFuzzer, utils
 
 def get_option_parser():
     ret = OptionParser()
     ret.set_usage("python3 Main.py [options] [ip/tcp/app] [dhost] [dport]")
     ret.add_option("-c", "--config_file", dest="config_file",
         help="The configuration file", default="config.yml")
+    ret.add_option("-f", "--fields", dest="fields",
+        help="The layers to fuzz for default tests", default="all")
+    ret.add_option("-m", "--max_tests", dest="max_tests",
+        help="Maximum number of tests to run for a field, default 256", default=256)
+    ret.add_option("-p", "--payload_file", dest="payload",
+        help="The payload file", default="payload.txt")
+    ret.add_option("-s", "--source_host", dest="shost",
+        help="The source ip address", default="localhost")
+    ret.add_option("-t", "--source_port", dest="sport",
+        help="The source port", default=1365)
     ret.add_option("-v", "--verbose", dest="verbose", action="store_true",
         help="Include debug print statements", default=False)
     return ret
@@ -77,8 +90,8 @@ def run():
     
     else:
         logging.info("Starting Application layer Fuzzer....")
-        # f = AppFuzzer.AppFuzzer(host, port)
-        # f.run()
+        f = af.AppFuzzer(host, port)
+        f.run()
 
 if __name__ == '__main__':
     run()

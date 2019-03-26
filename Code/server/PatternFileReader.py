@@ -17,7 +17,7 @@ class PatternFileReader:
                 return self.get_hex(input_file.read())
 
         except FileNotFoundError:
-            logging.critical("Pattern File Not Found: {}".format(path))
+            logging.critical("Pattern File Not Found: {}".format(self.path))
 
     def get_hex(self, input_string):
         '''Turns the hex pattern read as a string to a list of bytes'''
