@@ -14,36 +14,36 @@ This is the fuzzer for Security II.
 ## TO BE IMPLEMENTED
 
 ### IP Layer Fuzzing -- TCP layer is valid and IP Header is fuzzed
-  * Run a default set of tests where each field is fuzzed individually with all possible values tested for each field -- DONE
+  * Run a default set of tests where each field is fuzzed individually with all possible values tested for each field
   * The user can specify what fields to fuzz but use the default tests -- DONE
-  * Running a set of tests where content of fields is read in as hex from a file.
-  * The user can specify multiple tests in the same file
-  * Each line can correspond to a given packet with tag:value pairs
+  * Running a set of tests where content of fields is read in as hex from a file. -- DONE
+  * The user can specify multiple tests in the same file -- DONE
+  * Each line can correspond to a given packet with tag:value pairs -- DONE
   * Set a maximum on the number of tests in a given file
   * The fuzzer must include a small default payload that is specified in a file and can be edited by the user -- DONE
 
 ### TCP Layer Fuzzing -- IP Layer is valid and TCP layer is fuzzed
   * Run a default set of tests where each field is fuzzed individually with all possible values tested for each field
-  * The user can specify what fields to fuzz but use the default tests
-  * Run a set of tests where the content of the fields is read in as hex from a file.
-  * The user can specify multiple tests in the same file
-  * Each line can correspond to a given packet with tag:value pairs
+  * The user can specify what fields to fuzz but use the default tests -- DONE
+  * Run a set of tests where the content of the fields is read in as hex from a file. -- DONE
+  * The user can specify multiple tests in the same file -- DONE
+  * Each line can correspond to a given packet with tag:value pairs -- DONE
   * Set a maximum on the number of tests in a given file
-  * The fuzzer must include a small default payload that is specified in a file and can be edited by the user
+  * The fuzzer must include a small default payload that is specified in a file and can be edited by the user -- DONE
 
 ### Application Layer Fuzzing -- Valid IP & TCP Layers
   * Run a set of default tests where random payloads are sent to the Server
-  * User specifies the number of tests to run
-  * User can specify a fixed payload size
-  * User can specify size of the fixed payload
-  * User can specify a varied payload
-  * User can specify the range in a varied payload
-  * User can specify payload in a file
-  * Each line in the file is a separate payload
+  * User specifies the number of tests to run -- DONE
+  * User can specify a fixed payload size -- DONE
+  * User can specify size of the fixed payload -- DONE
+  * User can specify a varied payload -- DONE
+  * User can specify the range in a varied payload -- DONE
+  * User can specify payload in a file -- DONE
+  * Each line in the file is a separate payload -- DONE
   * There is a maximum number of tests in the file
-  * The fuzzer processes the response from the server
-  * The fuzzer tracks the number of valid and invalid responses
-  * When the fuzzer completes it will print the total number of tests, valid, and invalid counts
+  * The fuzzer processes the response from the server -- DONE
+  * The fuzzer tracks the number of valid and invalid responses -- DONE
+  * When the fuzzer completes it will print the total number of tests, valid, and invalid counts -- DONE
 
 
 ### Server
