@@ -67,8 +67,11 @@ def run():
     
     elif layer == "tcp":
         logging.info("Starting TCP Fuzzer....")
-        f = TCPFuzzer.TCPFuzzer(host, port)
-        f.run_default()
+        f = TCPFuzzer.TCPFuzzer(src, dst, payload, tcp_fields)
+        if mode == 'default':
+            f.run_default(max_tests_default)
+        elif mode == 'custom':
+            f.run_custom(test_file, max_tests_custom)
     
     else:
         logging.info("Starting Application layer Fuzzer....")

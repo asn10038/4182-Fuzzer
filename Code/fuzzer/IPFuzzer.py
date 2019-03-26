@@ -52,10 +52,10 @@ class IPFuzzer:
                 tests['id'].append(IP(id=id_sample))
             frag_samples = random.sample(range(self.ipv4['frag']), max_tests)
             for frag_sample in frag_samples:
-                tests['frag'].append(IP(id=frag_sample))
+                tests['frag'].append(IP(frag=frag_sample))
 
             for field, test in tests.items():
-                if 'all' in self.fields or field in self.fields: # only test user-specified fields
+                if field in self.fields: # only test user-specified fields
                     for packet in test:
                         sess.send(packet/TCP()/Raw(load=self.payload))
 

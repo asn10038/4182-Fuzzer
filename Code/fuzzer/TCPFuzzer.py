@@ -9,7 +9,7 @@ import fuzzer.utils as utils
 
 class TCPFuzzer:
 
-    def __init__(self, src, dst, mode, payload, fields):
+    def __init__(self, src, dst, payload, fields):
         self.shost, self.sport = src
         self.dhost, self.dport = dst
         
@@ -30,34 +30,31 @@ class TCPFuzzer:
             tests = defaultdict(list)
             
             # For fields with few bits, try every possible value
-            # for version in range(self.ipv4['version']):
-            #     tests['version'].append(IP(version=version))
-            # for ihl in range(self.ipv4['ihl']):
-            #     tests['ihl'].append(IP(ihl=ihl))
-            # for tos in range(self.ipv4['tos']):
-            #     tests['tos'].append(IP(tos=tos))
-            # for flags in range(self.ipv4['flags']):
-            #     tests['flags'].append(IP(flags=flags))
-            # for ttl in range(self.ipv4['ttl']):
-            #     tests['ttl'].append(IP(ttl=ttl))
-            # for proto in range(self.ipv4['proto']):
-            #     tests['proto'].append(IP(proto=proto))
+            for dataofs in range(self.tcp['dataofs']):
+                tests['dataofs'].append(TCP(dataofs=dataofs))
+            for reserved in range(self.tcp['reserved']):
+                tests['reserved'].append(TCP(reserved=reserved))
+            for flags in range(self.tcp['flags']):
+                tests['flags'].append(TCP(flags=flags))
             
             # For other fields, try max_tests random values
-            # len_samples = random.sample(range(self.ipv4['len']), self.max_tests)
-            # for len_sample in len_samples:
-            #     tests['len'].append(IP(len=len_sample))
-            # id_samples = random.sample(range(self.ipv4['id']), self.max_tests)
-            # for id_sample in id_samples:
-            #     tests['id'].append(IP(id=id_sample))
-            # frag_samples = random.sample(range(self.ipv4['frag']), self.max_tests)
-            # for frag_sample in frag_samples:
-            #     tests['frag'].append(IP(id=frag_sample))
-# 
-            # for field, test in tests.items():
-            #     if 'all' in self.fields or field in self.fields: # only test user-specified fields
-            #         for packet in test:
-            #             sess.send(packet/TCP()/Raw(load=self.payload))
+            seq_samples = random.sample(range(self.tcp['seq']), max_tests)
+            for seq_sample in seq_samples:
+                tests['seq'].append(TCP(seq=seq_sample))
+            ack_samples = random.sample(range(self.tcp['ack']), max_tests)
+            for ack_sample in ack_samples:
+                tests['ack'].append(TCP(ack=ack_sample))
+            window_samples = random.sample(range(self.tcp['window']), max_tests)
+            for window_sample in window_samples:
+                tests['window'].append(TCP(window=window_sample))
+            urgptr_samples = random.sample(range(self.tcp['urgptr']), max_tests)
+            for urgptr_sample in urgptr_samples:
+                tests['urgptr'].append(TCP(urgptr=urgptr_sample))
+
+            for field, test in tests.items():
+                if field in self.fields: # only test user-specified fields
+                    for packet in test:
+                        sess.send(IP()/packet/Raw(load=self.payload))
 
             sess.close()
 
@@ -90,6 +87,6 @@ class TCPFuzzer:
                         packet.urgptr = value
                     else:
                         print('Unknown field ' + field + 'in test ' + tid + '. Skipping...')
-                sess.send(packet/TCP()/Raw(load=self.payload))
+                sess.send(IP()/packet/Raw(load=self.payload))
             
             sess.close()
