@@ -72,6 +72,15 @@ def run():
 
     sniffer_timeout = cfg_advanced['sniffer_timeout']
 
+    # Read options for app layer
+    numTests = int(cfg_advanced['app_layer']['numTests'])
+    minPayloadSize = int(cfg_advanced['app_layer']['minPayloadSize'])
+    maxPayloadSize = int(cfg_advanced['app_layer']['maxPayloadSize'])
+    if 'payloadFilePath' in cfg_advanced['app_layer']:
+        payloadFilePath = cfg_advanced['app_layer']['payloadFilePath']
+    else:
+        payloadFilePath = ''
+
     if layer == "ip":
         logging.info("Starting IP Fuzzer....")
         f = IPFuzzer.IPFuzzer(src, dst, payload, ip_fields, sniffer_timeout)
@@ -90,7 +99,7 @@ def run():
     
     else:
         logging.info("Starting Application layer Fuzzer....")
-        f = af.AppFuzzer(host, port)
+        f = af.AppFuzzer(host, port, numTests=numTests, minPayloadSize=minPayloadSize, maxPayloadSize=maxPayloadSize, payloadFilePath=payloadFilePath)
         f.run()
 
 if __name__ == '__main__':

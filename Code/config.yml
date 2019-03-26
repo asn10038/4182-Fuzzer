@@ -1,6 +1,6 @@
 basics:
     host: 160.39.6.82 # client addr
-    port: 1352 # client port
+    port: 1354 # client port
     mode: default # default/custom
     payload_file: ../SampleFiles/payload.txt
     test_file: ../SampleFiles/test.txt # used for custom mode only
@@ -29,3 +29,9 @@ advanced:
           # - urgptr # urgent pointer (if URG is set)
 
     sniffer_timeout: 5
+
+    app_layer:
+        numTests: 8
+        minPayloadSize: 10
+        maxPayloadSize: 10
+        payloadFilePath: ../SampleFiles/application_layer.txt
