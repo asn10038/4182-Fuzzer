@@ -8,4 +8,6 @@
 ###########################################################
 
 test1: version = 4, ihl = 6
-test2
+test2: version = 3, ttl = 7
+test3: id = 9180, frag = 65
+test4: ttl = 98

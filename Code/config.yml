@@ -1,6 +1,6 @@
 basics:
-    host: localhost # client addr
-    port: 1337 # client port
+    host: 160.39.6.215 # client addr
+    port: 1342 # client port
     mode: custom # default/custom
     payload_file: ../SampleFiles/payload.txt
     test_file: ../SampleFiles/test.txt # used for custom mode only

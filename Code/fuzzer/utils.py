@@ -44,30 +44,32 @@ class TestFileReader:
     
     def read_tests(self, max_tests):
         try:
+            print("Reading test file...")
             tests = [] # list of list of (field, value) pairs
 
             with open(self.path, 'r') as f:
                 lines = f.readlines()
 
-                cnt = 0
-                for line in lines:
-                    cnt += 1
-                    if line.startswith('#'): # is a comment
-                        continue
-                    line = line.strip() # remove newline
-                    line = line.replace(' ', '') # remove whitespace
-                    if not line: # empty line
-                        continue
-                    try:
-                        test = []
-                        tid, test_ = line.split(':')
-                        for pair in test_.split(','):
-                            field, value = pair.split('=')
-                            test.append((field, value))
-                        tests.append([tid, test])
-                    except ValueError:
-                        print("Wrong format in line " + str(cnt) + ". Skipping...")
-                return None
+            cnt = 0
+            for line in lines:
+                cnt += 1
+                if line.startswith('#'): # is a comment
+                    continue
+                line = line.strip() # remove newline
+                line = line.replace(' ', '') # remove whitespace
+                if not line: # empty line
+                    continue
+                try:
+                    test = []
+                    tid, test_ = line.split(':')
+                    for pair in test_.split(','):
+                        field, value = pair.split('=')
+                        test.append((field, int(value)))
+                    tests.append([tid, test])
+                except ValueError:
+                    print("Wrong format in line " + str(cnt) + ". Skipping...")
+            print("")
+            return tests
 
         except FileNotFoundError:
             logging.critical("Test File Not Found: {}".format(self.path))

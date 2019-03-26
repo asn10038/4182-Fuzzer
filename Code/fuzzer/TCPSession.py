@@ -166,7 +166,7 @@ class TCPSession:
         # Receive ACK
         ACK = sr1(packet, timeout=self.timeout)
         if not ACK or not ACK[TCP].flags.A:
-            print("Error: Unable to send.")
+            print("Error: Packet unable to reach server.")
             return False
         
         self.seq += len(packet.payload.payload) # size of tcp payload
