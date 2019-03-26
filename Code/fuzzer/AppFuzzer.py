@@ -1,19 +1,23 @@
 ''' This is the app fuzzer '''
 import logging
 import random
-import fuzzer.TCPSession as ts
-import fuzzer.utils
+import fuzzer.utils as utils
 from scapy.all import *
+import socket 
 
 class AppFuzzer:
 
-    def __init__(self, tcpSession, numTests=5, minPayloadSize=10, maxPayloadSize=10, payloadFilePath=''):
+    def __init__(self, host, port, numTests=5, minPayloadSize=10, maxPayloadSize=10, payloadFilePath=''):
        self.numTests = numTests
        self.minPayloadSize = minPayloadSize
        self.maxPayloadSize = maxPayloadSize
        self.payloadFilePath = payloadFilePath
-       self.TCPSession = tcpSession
        self.payloads = self.getPayloads()
+       self.host = host
+       self.port = port
+       self.validCount = 0
+       self.invalidCount = 0
+       self.MAXPSIZE = 1000
 
     def getPayloads(self):
         if self.payloadFilePath == '':
@@ -50,14 +54,20 @@ class AppFuzzer:
 
     def run(self):
         # This runs the fuzzer
-        if self.TCPSession.connect():
-            for payload in self.payloads:
-                logging.info("Sending payload: {}".format(payload))
-                packet = self.TCPSession.ip / TCP() / Raw(load=payload)
-                sendp(packet)
+        for payload in self.payloads:
+            if len(payload) > self.MAXPSIZE:
+                print("Payload too long...ignoring: {}".format(payload))
+                continue
 
-if __name__ == '__main__':
-    print("Running the application layer fuzzing")
-    sess = ts.TCPSession("127.0.0.1", "127.0.0.1", 3000, 8000, timeout=0.1)
-    af = AppFuzzer(sess)
-    af.run()
+            logging.debug("Sending payload: {}".format(payload))
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.connect((self.host, int(self.port)))
+                sock.sendall(payload)
+                received = str(sock.recv(1024)) 
+                logging.debug("Received: {}".format(received))
+                if  'ff' in str(received):
+                    self.invalidCount += 1
+                elif '00' in str(received):
+                    self.validCount += 1
+        print('Total Tests: {}'.format(self.validCount + self.invalidCount))
+        print('Valid Count: {} \n Invalid Count: {}'.format(self.validCount, self.invalidCount))

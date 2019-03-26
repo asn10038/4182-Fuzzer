@@ -65,8 +65,7 @@ def run():
 
     else:
         logging.info("Starting Application layer Fuzzer....")
-        sess = ts.TCPSession("127.0.0.1", "127.0.0.1", 3000, 8000, timeout=0.1)
-        f = af.AppFuzzer(sess)
+        f = af.AppFuzzer(host, port)
         f.run()
         # f = AppFuzzer.AppFuzzer(host, port)
         # f.run()
