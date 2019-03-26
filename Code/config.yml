@@ -1,7 +1,7 @@
 basics:
     host: localhost # client addr
     port: 1337 # client port
-    mode: default # default/custom
+    mode: custom # default/custom
     payload_file: ../SampleFiles/payload.txt
     test_file: ../SampleFiles/test.txt # used for custom mode only
     max_tests_default: 256 # max number of values to try for a field in default mode

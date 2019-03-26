@@ -16,7 +16,7 @@ class PayloadFileReader:
                 return self.get_hex(input_file.read())
 
         except FileNotFoundError:
-            logging.critical("Pattern File Not Found: {}".format(path))
+            logging.critical("Pattern File Not Found: {}".format(self.path))
 
     def get_hex(self, input_string):
         '''Turns the hex pattern read as a string to a list of bytes'''
@@ -37,3 +37,37 @@ class PayloadFileReader:
         except ValueError:
             logging.critical('''Pattern contains non Hex Pattern \n
                    Pattern:{}'''.format(input_string))
+
+class TestFileReader:
+    def __init__(self, path):
+        self.path = path
+    
+    def read_tests(self, max_tests):
+        try:
+            tests = [] # list of list of (field, value) pairs
+
+            with open(self.path, 'r') as f:
+                lines = f.readlines()
+
+                cnt = 0
+                for line in lines:
+                    cnt += 1
+                    if line.startswith('#'): # is a comment
+                        continue
+                    line = line.strip() # remove newline
+                    line = line.replace(' ', '') # remove whitespace
+                    if not line: # empty line
+                        continue
+                    try:
+                        test = []
+                        tid, test_ = line.split(':')
+                        for pair in test_.split(','):
+                            field, value = pair.split('=')
+                            test.append((field, value))
+                        tests.append([tid, test])
+                    except ValueError:
+                        print("Wrong format in line " + str(cnt) + ". Skipping...")
+                return None
+
+        except FileNotFoundError:
+            logging.critical("Test File Not Found: {}".format(self.path))
