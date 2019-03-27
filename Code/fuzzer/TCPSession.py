@@ -65,13 +65,13 @@ class TCPSession:
 
             # Send ACK
             ACK = TCP(sport=self.sport, dport=self.dport, flags='A', seq=self.seq, ack=ack)
-            send(self.ip/ACK)
+            send(self.ip/ACK, verbose=False)
         
         elif packet[TCP].flags.F: # FA
             if self.active_close: # Received 2nd msg in handshake (active close)
                 # Send ACK
                 ACK = TCP(sport=self.sport, dport=self.dport, flags='A', seq=self.seq, ack=ack)
-                send(self.ip/ACK)
+                send(self.ip/ACK, verbose=False)
                 self.active_close = False
                 self.connected = False
                 print("Connection closed. Bye!")
@@ -81,7 +81,7 @@ class TCPSession:
                 FINACK = TCP(sport=self.sport, dport=self.dport, flags='FA', seq=self.seq, ack=ack)
 
                 # Receive ACK
-                ACK = sr1(self.ip/FINACK, timeout=self.timeout)
+                ACK = sr1(self.ip/FINACK, timeout=self.timeout, verbose=0)
                 if not ACK or not ACK[TCP].flags.A:
                     print("Error: Close connection failed.")
                 else:
@@ -99,7 +99,7 @@ class TCPSession:
         self.seq += 1
 
         # Receive SYNACK
-        SYNACK = sr1(self.ip/SYN, timeout=self.timeout)
+        SYNACK = sr1(self.ip/SYN, timeout=self.timeout, verbose=0)
         if not SYNACK or SYNACK[TCP].flags != 'SA':
             print("Error: Unable to connect. Try changing port.")
             return False
@@ -108,7 +108,7 @@ class TCPSession:
         # Send ACK
         ACK = TCP(sport=self.sport, dport=self.dport, flags='A', seq=self.seq, ack=self.ack)
         # self.seq += 1
-        send(self.ip/ACK)
+        send(self.ip/ACK, verbose=False)
 
         # Start sniffer
         self.sniffer.start()
@@ -128,7 +128,7 @@ class TCPSession:
         self.seq += 1
 
         self.active_close = True
-        send(self.ip/FIN)
+        send(self.ip/FIN, verbose=False)
         print("Sent FIN to server.")
 
         # TODO: replace with sth more elegant
@@ -177,9 +177,9 @@ class TCPSession:
         # self.seq += len(packet.payload.payload) # size of tcp payload
 
         # Receive ACK
-        ACK = sr1(packet, timeout=self.timeout)
+        ACK = sr1(packet, timeout=self.timeout, verbose=0)
         if not ACK or not ACK[TCP].flags.A:
-            print("Error: Packet unable to reach server.")
+            print("Warning: Packet not acknowledged by server.")
             return False
         
         self.seq += len(packet.payload.payload) # size of tcp payload

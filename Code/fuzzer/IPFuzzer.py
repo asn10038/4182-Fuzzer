@@ -31,18 +31,53 @@ class IPFuzzer:
             tests = defaultdict(list)
             
             # For fields with few bits, try every possible value
-            for version in range(self.ipv4['version']):
-                tests['version'].append(IP(version=version))
-            for ihl in range(self.ipv4['ihl']):
-                tests['ihl'].append(IP(ihl=ihl))
-            for tos in range(self.ipv4['tos']):
-                tests['tos'].append(IP(tos=tos))
-            for flags in range(self.ipv4['flags']):
-                tests['flags'].append(IP(flags=flags))
-            for ttl in range(self.ipv4['ttl']):
-                tests['ttl'].append(IP(ttl=ttl))
-            for proto in range(self.ipv4['proto']):
-                tests['proto'].append(IP(proto=proto))
+            if max_tests < self.ipv4['version']:
+                version_samples = random.sample(range(self.ipv4['version']), max_tests)
+                for version_sample in version_samples:
+                    tests['version'].append(IP(version=version_sample))
+            else:
+                for version in range(self.ipv4['version']):
+                    tests['version'].append(IP(version=version))
+            
+            if max_tests < self.ipv4['ihl']:
+                ihl_samples = random.sample(range(self.ipv4['ihl']), max_tests)
+                for ihl_sample in ihl_samples:
+                    tests['ihl'].append(IP(ihl=ihl_sample))
+            else:
+                for ihl in range(self.ipv4['ihl']):
+                    tests['ihl'].append(IP(ihl=ihl))
+            
+            if max_tests < self.ipv4['tos']:
+                tos_samples = random.sample(range(self.ipv4['tos']), max_tests)
+                for tos_sample in tos_samples:
+                    tests['tos'].append(IP(tos=tos_sample))
+            else:
+                for tos in range(self.ipv4['tos']):
+                    tests['tos'].append(IP(tos=tos))
+            
+            if max_tests < self.ipv4['flags']:
+                flags_samples = random.sample(range(self.ipv4['flags']), max_tests)
+                for flags_sample in flags_samples:
+                    tests['flags'].append(IP(flags=flags_sample))
+            else:
+                for flags in range(self.ipv4['flags']):
+                    tests['flags'].append(IP(flags=flags))
+            
+            if max_tests < self.ipv4['ttl']:
+                ttl_samples = random.sample(range(self.ipv4['ttl']), max_tests)
+                for ttl_sample in ttl_samples:
+                    tests['ttl'].append(IP(ttl=ttl_sample))
+            else:
+                for ttl in range(self.ipv4['ttl']):
+                    tests['ttl'].append(IP(ttl=ttl))
+            
+            if max_tests < self.ipv4['proto']:
+                proto_samples = random.sample(range(self.ipv4['proto']), max_tests)
+                for proto_sample in proto_samples:
+                    tests['proto'].append(IP(proto=proto_sample))
+            else:
+                for proto in range(self.ipv4['proto']):
+                    tests['proto'].append(IP(proto=proto))
             
             # For other fields, try max_tests random values
             len_samples = random.sample(range(self.ipv4['len']), max_tests)
@@ -56,7 +91,7 @@ class IPFuzzer:
                 tests['frag'].append(IP(frag=frag_sample))
 
             for field, test in tests.items():
-                if field in self.fields: # only test user-specified fields
+                if 'all' in self.fields or field in self.fields: # only test user-specified fields
                     for packet in test:
                         sess.send(packet/TCP()/Raw(load=self.payload))
 
