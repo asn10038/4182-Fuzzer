@@ -17,6 +17,8 @@ class Sniffer(Thread):
             
         def stop_sniffer(x):
             if x[TCP].flags.F:
+                if not self.session.connected: # normal close
+                    return True
                 print("Received FIN flag from server. Connection may close.")
                 # return True
             elif x[TCP].flags.R:
@@ -53,6 +55,9 @@ class TCPSession:
 
         self.connected = False
         self.active_close = False
+
+        # Turn off scapy verbose mode
+        conf.verb = 0
     
     def dispatcher(self, packet):
         # print(packet.show())

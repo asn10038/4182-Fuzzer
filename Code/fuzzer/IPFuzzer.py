@@ -57,6 +57,7 @@ class IPFuzzer:
 
             for field, test in tests.items():
                 if field in self.fields: # only test user-specified fields
+                    print("Running default test on " + field + "layer...")
                     for packet in test:
                         sess.send(packet/TCP()/Raw(load=self.payload))
 

@@ -1,10 +1,10 @@
 basics:
-    host: 160.39.6.82 # client addr
-    port: 1354 # client port
+    host: 192.168.0.7 # client addr
+    port: 1362 # client port
     mode: default # default/custom
     payload_file: ../SampleFiles/payload.txt
     test_file: ../SampleFiles/test.txt # used for custom mode only
-    max_tests_default: 256 # max number of values to try for a field in default mode
+    max_tests_default: 64 # max number of values to try for a field in default mode
     max_tests_custom: 1024 # max number of tests to run from a file in custom mode
 
 advanced:
@@ -13,8 +13,8 @@ advanced:
         - ihl # internet header length
         - tos # type of service
         - len # total length
-        - id # identification
-        - flags # 0|DF|MF
+        # - id # identification
+        # - flags # 0|DF|MF
         - frag # fragment offset
         - ttl # time to live
         - proto # protocol
@@ -28,7 +28,7 @@ advanced:
           # - window # window size
           # - urgptr # urgent pointer (if URG is set)
 
-    sniffer_timeout: 5
+    sniffer_timeout: 30
 
     app_layer:
         numTests: 8
