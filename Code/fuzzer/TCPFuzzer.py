@@ -31,12 +31,29 @@ class TCPFuzzer:
             tests = defaultdict(list)
             
             # For fields with few bits, try every possible value
-            for dataofs in range(self.tcp['dataofs']):
-                tests['dataofs'].append(TCP(dataofs=dataofs))
-            for reserved in range(self.tcp['reserved']):
-                tests['reserved'].append(TCP(reserved=reserved))
-            for flags in range(self.tcp['flags']):
-                tests['flags'].append(TCP(flags=flags))
+            if max_tests < self.tcp['dataofs']:
+                dataofs_samples = random.sample(range(self.tcp['dataofs']), max_tests)
+                for dataofs_sample in dataofs_samples:
+                    tests['dataofs'].append(TCP(dataofs=dataofs_sample))
+            else:
+                for dataofs in range(self.tcp['dataofs']):
+                    tests['dataofs'].append(TCP(dataofs=dataofs))
+            
+            if max_tests < self.tcp['reserved']:
+                reserved_samples = random.sample(range(self.tcp['reserved']), max_tests)
+                for reserved_sample in reserved_samples:
+                    tests['reserved'].append(TCP(reserved=reserved_sample))
+            else:
+                for reserved in range(self.tcp['reserved']):
+                    tests['reserved'].append(TCP(reserved=reserved))
+            
+            if max_tests < self.tcp['flags']:
+                flags_samples = random.sample(range(self.tcp['flags']), max_tests)
+                for flags_sample in flags_samples:
+                    tests['flags'].append(TCP(flags=flags_sample))
+            else:
+                for flags in range(self.tcp['flags']):
+                    tests['flags'].append(TCP(flags=flags))
             
             # For other fields, try max_tests random values
             seq_samples = random.sample(range(self.tcp['seq']), max_tests)
@@ -53,7 +70,8 @@ class TCPFuzzer:
                 tests['urgptr'].append(TCP(urgptr=urgptr_sample))
 
             for field, test in tests.items():
-                if field in self.fields: # only test user-specified fields
+                if 'all' in self.fields or field in self.fields: # only test user-specified fields
+                    print("Running default test on " + field + " layer...")
                     for packet in test:
                         if field == 'seq':
                             sess.send(IP()/packet/Raw(load=self.payload), custom_seq=True)
@@ -64,7 +82,8 @@ class TCPFuzzer:
                         else:
                             sess.send(IP()/packet/Raw(load=self.payload))
 
-            sess.close()
+            if not sess.close():
+                print("Error: Unable to close connection. Waiting for sniffer to time out...")
 
     def run_custom(self, test_file, max_tests):
         logging.info("Running custom tests on TCP layer...")
@@ -94,8 +113,8 @@ class TCPFuzzer:
                     elif field == 'urgptr':
                         packet.urgptr = value
                     else:
-                        print('Unknown field ' + field + 'in test ' + tid + '. Skipping...')
+                        print('Unknown field ' + field + ' in test ' + tid + '. Skipping...')
                 sess.send(IP()/packet/Raw(load=self.payload), custom_tcp_flags=True)
             
             if not sess.close():
-                print("Error: Unable to close connection.")
+                print("Error: Unable to close connection. Waiting for sniffer to time out...")

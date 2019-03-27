@@ -53,6 +53,9 @@ class TestFileReader:
             cnt = 0
             for line in lines:
                 cnt += 1
+                if cnt > max_tests:
+                    print("Reached maximum number of tests.")
+                    break
                 if line.startswith('#'): # is a comment
                     continue
                 line = line.strip() # remove newline

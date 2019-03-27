@@ -14,16 +14,10 @@ def get_option_parser():
     ret.set_usage("python3 Main.py [options] [ip/tcp/app] [dhost] [dport]")
     ret.add_option("-c", "--config_file", dest="config_file",
         help="The configuration file", default="config.yml")
-    ret.add_option("-f", "--fields", dest="fields",
-        help="The layers to fuzz for default tests", default="all")
-    ret.add_option("-m", "--max_tests", dest="max_tests",
-        help="Maximum number of tests to run for a field, default 256", default=256)
-    ret.add_option("-p", "--payload_file", dest="payload",
-        help="The payload file", default="payload.txt")
     ret.add_option("-s", "--source_host", dest="shost",
-        help="The source ip address", default="localhost")
+        help="The source ip address")
     ret.add_option("-t", "--source_port", dest="sport",
-        help="The source port", default=1365)
+        help="The source port")
     ret.add_option("-v", "--verbose", dest="verbose", action="store_true",
         help="Include debug print statements", default=False)
     return ret
@@ -43,34 +37,75 @@ def run():
         exit()
 
     # Parse the configuration file
-    with open(options.config_file, 'r') as config_file:
-        cfg = yaml.safe_load(config_file)
+    try:
+        with open(options.config_file, 'r') as config_file:
+            cfg = yaml.safe_load(config_file)
     
-    cfg_basics = cfg['basics']
-    cfg_advanced = cfg['advanced']
+        cfg_basics = cfg['basics']
+        cfg_advanced = cfg['advanced']
 
-    src = (cfg_basics['host'], int(cfg_basics['port']))
-    dst = (host, int(port))
+        src = [cfg_basics['host'], int(cfg_basics['port'])]
+        dst = (host, int(port))
 
-    mode = cfg_basics['mode']
-    if mode not in ('default', 'custom'):
-        print("Unknown mode in configuration file.")
-        exit()
+        mode = cfg_basics['mode']
+        if mode not in ('default', 'custom'):
+            print("Unknown mode in configuration file.")
+            exit()
+        
+        payload_file = cfg_basics['payload_file']
+        test_file = cfg_basics['test_file']
+
+        max_tests_default = cfg_basics['max_tests_default']
+        max_tests_custom = cfg_basics['max_tests_custom']
+
+        # Parse fields
+        ip_fields = cfg_advanced['ip_fields']
+        tcp_fields = cfg_advanced['tcp_fields']
+
+        sniffer_timeout = cfg_advanced['sniffer_timeout']
+
+        # Read options for app layer
+        numTests = int(cfg_advanced['app_layer']['numTests'])
+        minPayloadSize = int(cfg_advanced['app_layer']['minPayloadSize'])
+        maxPayloadSize = int(cfg_advanced['app_layer']['maxPayloadSize'])
+        if 'payloadFilePath' in cfg_advanced['app_layer']:
+            payloadFilePath = cfg_advanced['app_layer']['payloadFilePath']
+        else:
+            payloadFilePath = ''
+    
+    except FileNotFoundError:
+        print("Configuration file not found. Using default configuration...")
+
+        src = ['localhost', 1365]
+        dst = (host, int(port))
+
+        mode = 'default'
+
+        payload_file = '../SampleFiles/payload.txt'
+        test_file = '../SampleFiles/test.txt'
+
+        max_tests_default = 32
+        max_tests_custom = 512
+
+        ip_fields = ['all']
+        tcp_fields = ['all']
+
+        sniffer_timeout = 5
+
+        numTests = 5
+        minPayloadSize = 10
+        maxPayloadSize = 10
+        payloadFilePath = ''
+
+    # overwrite configuration file if host and port specified in command line options
+    if options.shost:
+        src[0] = options.shost
+    if options.sport:
+        src[1] = int(options.sport)
 
     # Read the payload
-    preader = utils.PayloadFileReader(cfg_basics['payload_file'])
+    preader = utils.PayloadFileReader(payload_file)
     payload = preader.read_payload()
-
-    test_file = cfg_basics['test_file']
-
-    max_tests_default = cfg_basics['max_tests_default']
-    max_tests_custom = cfg_basics['max_tests_custom']
-
-    # Parse fields
-    ip_fields = cfg_advanced['ip_fields']
-    tcp_fields = cfg_advanced['tcp_fields']
-
-    sniffer_timeout = cfg_advanced['sniffer_timeout']
 
     if layer == "ip":
         logging.info("Starting IP Fuzzer....")
@@ -90,7 +125,7 @@ def run():
     
     else:
         logging.info("Starting Application layer Fuzzer....")
-        f = af.AppFuzzer(host, port)
+        f = af.AppFuzzer(host, port, numTests=numTests, minPayloadSize=minPayloadSize, maxPayloadSize=maxPayloadSize, payloadFilePath=payloadFilePath)
         f.run()
 
 if __name__ == '__main__':
