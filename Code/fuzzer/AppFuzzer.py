@@ -7,12 +7,13 @@ import socket
 
 class AppFuzzer:
 
-    def __init__(self, host, port, numTests=5, minPayloadSize=10, maxPayloadSize=10, payloadFilePath=''):
+    def __init__(self, host, port, numTests=5, minPayloadSize=10, maxPayloadSize=10, payloadFilePath='', maxNumTests=1024):
        self.numTests = numTests
        self.minPayloadSize = minPayloadSize
        self.maxPayloadSize = maxPayloadSize
        self.payloadFilePath = payloadFilePath
        self.payloads = self.getPayloads()
+       self.maxNumTests = maxNumTests
        self.host = host
        self.port = port
        self.validCount = 0
@@ -54,7 +55,10 @@ class AppFuzzer:
 
     def run(self):
         # This runs the fuzzer
-        for payload in self.payloads:
+        for ind, payload in enumerate(self.payloads):
+            if ind > self.maxNumTests:
+                print("Too many tests. Skipping the rest...")
+                break
             if len(payload) > self.MAXPSIZE:
                 print("Payload too long...ignoring: {}".format(payload))
                 continue

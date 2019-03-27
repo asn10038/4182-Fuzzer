@@ -85,7 +85,7 @@ def run():
         test_file = '../SampleFiles/test.txt'
 
         max_tests_default = 32
-        max_tests_custom = 512
+        max_tests_custom = 1024
 
         ip_fields = ['all']
         tcp_fields = ['all']
@@ -125,7 +125,7 @@ def run():
     
     else:
         logging.info("Starting Application layer Fuzzer....")
-        f = af.AppFuzzer(host, port, numTests=numTests, minPayloadSize=minPayloadSize, maxPayloadSize=maxPayloadSize, payloadFilePath=payloadFilePath)
+        f = af.AppFuzzer(host, port, numTests=numTests, minPayloadSize=minPayloadSize, maxPayloadSize=maxPayloadSize, payloadFilePath=payloadFilePath) # , maxNumTests=max_tests_custom)
         f.run()
 
 if __name__ == '__main__':
