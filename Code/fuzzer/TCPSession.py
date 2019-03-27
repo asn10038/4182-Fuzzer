@@ -4,27 +4,37 @@ from threading import Thread
 from scapy.all import *
 
 class Sniffer(Thread):
-    def __init__(self, session, _filter):
+    def __init__(self, session, _filter, sniffer_timeout):
         super().__init__()
 
-        self.timeout = 30 # do we need this?
+        self.timeout = sniffer_timeout # do we need this?
         
         self.session = session
         self.filter = _filter
 
     def run(self):
         print("Sniffer started.")
+            
+        def stop_sniffer(x):
+            if x[TCP].flags.F:
+                print("Received FIN flag from server. Connection may close.")
+                # return True
+            elif x[TCP].flags.R:
+                print("Received RST flag from server. Connection may close.")
+                # return True
+            return False
+        
         sniff(
             prn=self.session.dispatcher, # Acknowledge received packets
             filter=self.filter,
-            # timeout=self.timeout,
-            stop_filter=lambda x: x[TCP].flags.F # Stop when received fin from server
+            timeout=self.timeout,
+            stop_filter=stop_sniffer # Stop when received fin or rst from server
             # stop_filter=lambda _: not self.session.connected # Stop when connection is closed
         )
         print("Sniffer exited.")
 
 class TCPSession:
-    def __init__(self, src, dst, sport, dport, timeout=3):
+    def __init__(self, src, dst, sport, dport, timeout=3, sniffer_timeout=5):
         self.src = src
         self.dst = dst
         self.sport = sport
@@ -38,8 +48,8 @@ class TCPSession:
         self.ip = IP(src=self.src, dst=self.dst)
 
         _filter = "src host " + dst + " and src port " + str(dport)
-        _filter = "tcp[tcpflags] & (tcp-push|tcp-fin) != 0 and " + _filter
-        self.sniffer = Sniffer(self, _filter)
+        _filter = "tcp[tcpflags] & (tcp-push|tcp-fin|tcp-rst) != 0 and " + _filter
+        self.sniffer = Sniffer(self, _filter, sniffer_timeout)
 
         self.connected = False
         self.active_close = False
@@ -91,7 +101,7 @@ class TCPSession:
         # Receive SYNACK
         SYNACK = sr1(self.ip/SYN, timeout=self.timeout)
         if not SYNACK or SYNACK[TCP].flags != 'SA':
-            print("Error: Unable to connect.")
+            print("Error: Unable to connect. Try changing port.")
             return False
         self.ack = SYNACK.seq + 1
 
@@ -145,7 +155,7 @@ class TCPSession:
         # self.active_close = False
         # return True
     
-    def send(self, packet):
+    def send(self, packet, custom_tcp_flags=False, custom_seq=False, custom_ack=False):
         """ Send packet to server """
         if not self.connected:
             print("Error: No connection.")
@@ -156,9 +166,12 @@ class TCPSession:
         packet.payload.sport = self.sport
         packet.payload.dport = self.dport
 
-        packet.payload.flags = "PA" # unless fuzzing tcp flags
-        packet.payload.seq = self.seq # unless fuzzing tcp seq
-        packet.payload.ack = self.ack # unless fuzzing tcp ack
+        if not custom_tcp_flags:
+            packet.payload.flags = "PA" # unless fuzzing tcp flags
+        if not custom_seq:
+            packet.payload.seq = self.seq # unless fuzzing tcp seq
+        if not custom_ack:
+            packet.payload.ack = self.ack # unless fuzzing tcp ack
 
         # Send packet
         # self.seq += len(packet.payload.payload) # size of tcp payload
@@ -166,7 +179,7 @@ class TCPSession:
         # Receive ACK
         ACK = sr1(packet, timeout=self.timeout)
         if not ACK or not ACK[TCP].flags.A:
-            print("Error: Unable to send.")
+            print("Error: Packet unable to reach server.")
             return False
         
         self.seq += len(packet.payload.payload) # size of tcp payload
