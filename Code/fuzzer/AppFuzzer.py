@@ -64,14 +64,17 @@ class AppFuzzer:
                 continue
 
             logging.debug("Sending payload: {}".format(payload))
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                sock.connect((self.host, int(self.port)))
-                sock.sendall(payload)
-                received = str(sock.recv(1024)) 
-                logging.debug("Received: {}".format(received))
-                if  'ff' in str(received):
-                    self.invalidCount += 1
-                elif '00' in str(received):
-                    self.validCount += 1
+            try:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                    sock.connect((self.host, int(self.port)))
+                    sock.sendall(payload)
+                    received = str(sock.recv(1024)) 
+                    logging.debug("Received: {}".format(received))
+                    if  'ff' in str(received):
+                        self.invalidCount += 1
+                    elif '00' in str(received):
+                        self.validCount += 1
+            except:
+                print("Unable to connect to server. Skipping...")
         print('Total Tests: {}'.format(self.validCount + self.invalidCount))
         print('Valid Count: {} \n Invalid Count: {}'.format(self.validCount, self.invalidCount))

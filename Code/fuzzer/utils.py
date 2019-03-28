@@ -76,3 +76,5 @@ class TestFileReader:
 
         except FileNotFoundError:
             logging.critical("Test File Not Found: {}".format(self.path))
+        except:
+            logging.critical("Error in reading test file. Please check format.")

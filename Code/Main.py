@@ -73,8 +73,8 @@ def run():
         else:
             payloadFilePath = ''
     
-    except FileNotFoundError:
-        print("Configuration file not found. Using default configuration...")
+    except:
+        print("Configuration file not found or in wrong format. Using default configuration...")
 
         src = ['localhost', 1365]
         dst = (host, int(port))
@@ -106,6 +106,10 @@ def run():
     # Read the payload
     preader = utils.PayloadFileReader(payload_file)
     payload = preader.read_payload()
+
+    if not payload:
+        print('Error with reading payload. Exiting...')
+        exit()
 
     if layer == "ip":
         logging.info("Starting IP Fuzzer....")
