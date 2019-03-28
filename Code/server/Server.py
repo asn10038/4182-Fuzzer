@@ -17,9 +17,13 @@ class Server:
         # Needed this otherwise the process hogs the port for a while
         socketserver.TCPServer.allow_reuse_address = True
 
-        tcpServer = socketserver.TCPServer((self.HOST,
-                                     self.PORT),
-                                     tcp.TCPHandler)
+        try:
+            tcpServer = socketserver.TCPServer((self.HOST, self.PORT), tcp.TCPHandler)
+        except:
+            print("Unable to start server! Please check host and port.")
+            print("Exiting...")
+            return
+        
         tcpServer.pattern = self.PATTERN
         tcpServer.validCount = 0
         tcpServer.invalidCount = 0

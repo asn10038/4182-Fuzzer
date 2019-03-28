@@ -73,8 +73,8 @@ def run():
         else:
             payloadFilePath = ''
     
-    except FileNotFoundError:
-        print("Configuration file not found. Using default configuration...")
+    except:
+        print("Configuration file not found or in wrong format. Using default configuration...")
 
         src = ['localhost', 1365]
         dst = (host, int(port))
@@ -85,7 +85,7 @@ def run():
         test_file = '../SampleFiles/test.txt'
 
         max_tests_default = 32
-        max_tests_custom = 512
+        max_tests_custom = 1024
 
         ip_fields = ['all']
         tcp_fields = ['all']
@@ -107,6 +107,10 @@ def run():
     preader = utils.PayloadFileReader(payload_file)
     payload = preader.read_payload()
 
+    if not payload:
+        print('Error with reading payload. Exiting...')
+        exit()
+
     if layer == "ip":
         logging.info("Starting IP Fuzzer....")
         f = IPFuzzer.IPFuzzer(src, dst, payload, ip_fields, sniffer_timeout)
@@ -125,7 +129,7 @@ def run():
     
     else:
         logging.info("Starting Application layer Fuzzer....")
-        f = af.AppFuzzer(host, port, numTests=numTests, minPayloadSize=minPayloadSize, maxPayloadSize=maxPayloadSize, payloadFilePath=payloadFilePath)
+        f = af.AppFuzzer(host, port, numTests=numTests, minPayloadSize=minPayloadSize, maxPayloadSize=maxPayloadSize, payloadFilePath=payloadFilePath) # , maxNumTests=max_tests_custom)
         f.run()
 
 if __name__ == '__main__':

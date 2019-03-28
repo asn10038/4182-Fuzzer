@@ -29,7 +29,7 @@ def run():
 
     # Read the arguments
     host = options.host
-    port = options.port
+    port = int(options.port)
     out_file = options.out_file
     # setup the logger
     verbose = options.verbose

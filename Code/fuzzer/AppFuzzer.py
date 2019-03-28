@@ -7,12 +7,13 @@ import socket
 
 class AppFuzzer:
 
-    def __init__(self, host, port, numTests=5, minPayloadSize=10, maxPayloadSize=10, payloadFilePath=''):
+    def __init__(self, host, port, numTests=5, minPayloadSize=10, maxPayloadSize=10, payloadFilePath='', maxNumTests=1024):
        self.numTests = numTests
        self.minPayloadSize = minPayloadSize
        self.maxPayloadSize = maxPayloadSize
        self.payloadFilePath = payloadFilePath
        self.payloads = self.getPayloads()
+       self.maxNumTests = maxNumTests
        self.host = host
        self.port = port
        self.validCount = 0
@@ -54,20 +55,26 @@ class AppFuzzer:
 
     def run(self):
         # This runs the fuzzer
-        for payload in self.payloads:
+        for ind, payload in enumerate(self.payloads):
+            if ind > self.maxNumTests:
+                print("Too many tests. Skipping the rest...")
+                break
             if len(payload) > self.MAXPSIZE:
                 print("Payload too long...ignoring: {}".format(payload))
                 continue
 
             logging.debug("Sending payload: {}".format(payload))
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                sock.connect((self.host, int(self.port)))
-                sock.sendall(payload)
-                received = str(sock.recv(1024)) 
-                logging.debug("Received: {}".format(received))
-                if  'ff' in str(received):
-                    self.invalidCount += 1
-                elif '00' in str(received):
-                    self.validCount += 1
+            try:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                    sock.connect((self.host, int(self.port)))
+                    sock.sendall(payload)
+                    received = str(sock.recv(1024)) 
+                    logging.debug("Received: {}".format(received))
+                    if  'ff' in str(received):
+                        self.invalidCount += 1
+                    elif '00' in str(received):
+                        self.validCount += 1
+            except:
+                print("Unable to connect to server. Skipping...")
         print('Total Tests: {}'.format(self.validCount + self.invalidCount))
         print('Valid Count: {} \n Invalid Count: {}'.format(self.validCount, self.invalidCount))

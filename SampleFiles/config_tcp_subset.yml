@@ -1,0 +1,37 @@
+basics:
+    host: localhost # client addr
+    port: 1365 # client port
+    mode: default # default/custom
+    payload_file: ../SampleFiles/payload.txt
+    test_file: ../SampleFiles/test.txt # used for custom mode only
+    max_tests_default: 32 # max number of values to try for a field in default mode
+    max_tests_custom: 512 # max number of tests to run from a file in custom mode
+
+advanced:
+    ip_fields: # fields to fuzz for the ip layer
+        - version
+        - ihl # internet header length
+        - tos # type of service
+        - len # total length
+        - id # identification
+        - flags # 0|DF|MF
+        - frag # fragment offset
+        - ttl # time to live
+        - proto # protocol
+
+    tcp_fields: # fields to fuzz for the tcp layer
+        - seq # sequence number
+        - ack # acknowledgment number (if ACK is set)
+        # - dataofs # data offset
+        # - reserved
+        # - flags # NS|CWR|ECE|URG|ACK|PSH|RST|SYN|FIN
+        # - window # window size
+        # - urgptr # urgent pointer (if URG is set)
+
+    sniffer_timeout: 30
+
+    app_layer:
+        numTests: 5
+        minPayloadSize: 10
+        maxPayloadSize: 10
+        payloadFilePath: ../SampleFiles/application_layer.txt
