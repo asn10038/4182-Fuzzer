@@ -1,0 +1,14 @@
+###########################################################
+# One test (packet) per line, fields separated by commas. #
+# For flags field, please specify ip_flags or tcp_flags.  #
+#                                                         #
+# Examples:                                               #
+# test1: version = 4, proto = 6                           #
+# test2: seq = 1001, tcp_flags = 4                        #
+###########################################################
+
+test1: seq = 4, dataofs = 6, urgptr = 10
+test2: seq = 10, ack = 12
+test3: reserved = 9
+test4: window = 125
+test5: dataofs = 7, window = 12
