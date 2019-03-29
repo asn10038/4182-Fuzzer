@@ -28,8 +28,8 @@ class TCPHandler(socketserver.StreamRequestHandler):
                     self.server.invalidCount += 1
                     self.wfile.write(bytearray.fromhex("FF"))
             except:
-                print("Error in receiving packet. Exiting...")
-                exit()
+                print("Error in receiving packet. Ignoring...")
+                return
 
 
     def payload_starts_w_pattern(self, data):
