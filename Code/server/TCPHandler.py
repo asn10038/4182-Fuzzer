@@ -29,7 +29,7 @@ class TCPHandler(socketserver.StreamRequestHandler):
                     self.wfile.write(bytearray.fromhex("FF"))
             except:
                 print("Error in receiving packet. Ignoring...")
-                continue
+                return
 
 
     def payload_starts_w_pattern(self, data):
